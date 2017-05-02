@@ -1,0 +1,194 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Blog</title>
+
+        <!-- Fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" type="text/css" href="/css/app.css">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-resource.min.js"></script>
+
+        <style type="text/css">
+            html, body {
+                background-image: url('http://www.sripipat.ac.th/wp-content/uploads/2015/05/bg.jpg');
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-attachment: fixed;
+                -o-background-size: 100% 100%, auto;
+                -moz-background-size: 100% 100%, auto;
+                -webkit-background-size: 100% 100%, auto;
+                background-size: 100% 100%, auto;
+                color: #FFFFFF;
+                font-family: 'Raleway', sans-serif;
+                font-weight: 100;
+                height: 100vh;
+                margin: 0;
+            }
+
+            .full-height {
+                height: 100vh;
+            }
+
+            .flex-center {
+                align-items: center;
+                display: flex;
+                justify-content: center;
+            }
+
+            .position-ref {
+                position: relative;
+            }
+
+            .top-right {
+                position: absolute;
+                right: 10px;
+                top: 18px;
+            }
+
+            .content {
+                text-align: center;
+            }
+
+            .title {
+                font-size: 84px;
+            }
+
+            .links > a {
+                color: #636b6f;
+                padding: 0 25px;
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: .1rem;
+                text-decoration: none;
+                text-transform: uppercase;
+            }
+
+            .m-b-md {
+                margin-bottom: 20px;
+            }
+
+            .txt{
+                font-family: 'Comic sans MS', sans-serif;
+                color: #663300;
+                font-size: 30px;
+            }
+
+            .txt2{
+                font-size: 70px;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div class="container">
+            <div class="flex-center position-ref full-height">
+            <div class="content">
+                
+                <div ng-app="blogApp" ng-controller="blogCtrl">
+                <div class="title txt"><h1>FOOD</h1>
+
+                 <table style="width:120%;text-align:center;background-color:#d9d9d9;color:#663300" >
+                        <tr>
+                            <td><br>
+                                <ul ng-repeat="blog in blogs track by $index" ng-if="!isEmpty(blog)">
+                                            {{blog}}        
+                                        <button type="submit" ng-click="edit(blog.id)"> Edit </button>
+                                        <button type="submit" ng-click="delete(blog.id)"> Delete </button>
+                                </ul>
+                            </td> 
+                        </tr>
+                    </table>
+                    </div><br>
+
+                <div class="title txt">
+                   <table style="width:120%;text-align:center;background-color:#d9d9d9;color:#663300">
+                        <tr>
+                            <td><br>
+                                    <h2>comment</h2>
+                                    
+                                    
+                                         <TEXTAREA rows="10" cols="50" id="name" ng-model="addblog.comment"></TEXTAREA><br><br>      
+                                    <button ng-click="add()">Add</button><br>
+                                    </td>&nbsp;&nbsp;
+                                    <td><br>
+                                    <h2>Edit Comment</h2>
+                                        
+                                        <TEXTAREA rows="10" cols="50" id="name" ng-model="editblog.comment"></TEXTAREA><br><br>        
+                                    <button ng-click="update(editblog.id)">Update</button><br>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var app = angular.module("blogApp",['ngResource'])
+        app.controller("blogCtrl", function($scope, $resource){
+            var blog = $resource('/api/blogs/:blog_id',{blog_id: '@id'},
+                { 
+                    update: {method:'PUT' } 
+                })
+            $scope.editblog = {}
+            $scope.result = {}
+            $scope.blogs = blog.query()
+
+            $scope.get = function(id) {
+                blog.get({blog_id:id}, function(blog) {
+                })
+            }   
+
+            $scope.add =  function() {
+               //  var givenblog = new blog($scope.addblog)
+                // givenblog.$save(function(data){ 
+                //     console.log(data.message)                    
+                // }) 
+
+                blog.save({comment: $scope.addblog.comment})
+                $scope.blogs = blog.query()
+            }
+
+            $scope.edit = function(id) {
+                blog.get({blog_id:id}, function(blog) {
+                    $scope.editblog.id = id
+                    $scope.editblog.name = blog.name
+                    $scope.editblog.comment = blog.comment
+                    $scope.result = blog
+                    $scope.message = 'Edited blog ' +  id
+                })
+            }
+
+            $scope.update = function(id) {
+                blog.update( {blog_id: id}, { name: $scope.editblog.name,
+                                              comment: $scope.editblog.comment})                
+                $scope.result = 'Update blog ' + id
+                $scope.blogs = blog.query()
+            }
+
+            $scope.delete = function(id) {
+                blog.delete( {blog_id: id})
+                $scope.result = 'Delete blog ' + id
+                $scope.blogs = blog.query()
+            }
+
+            $scope.isEmpty = function(blog) {
+                return Object.keys(blog).length == 0
+            }
+
+            $scope.select = function(id, blog) {
+                return id == blog.id
+            }
+
+        })
+    </script>
+
+    </body>
+</html>
